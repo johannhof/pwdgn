@@ -132,25 +132,24 @@ view model =
     div []
         [
           h1 [] [ text "pwdgn" ],
-          div []
-            [ input [ type' "range", value (toString model.lower), Html.Attributes.min "0", Html.Attributes.max "20", onRange Lower ] []
-            , label [] [ text (toString model.lower), text " lowercase letters." ]
+          div [ class "control-container" ] [
+            div [ class "controls" ] [
+              input [ id "lower", type' "range", value (toString model.lower), Html.Attributes.min "0", Html.Attributes.max "20", onRange Lower ] [],
+              input [ id "upper", type' "range", value (toString model.upper), Html.Attributes.min "0", Html.Attributes.max "20", onRange Upper ] [],
+              input [ id "digits", type' "range", value (toString model.digits), Html.Attributes.min "0", Html.Attributes.max "20", onRange Digits ] [],
+              input [ id "special", type' "range", value (toString model.special), Html.Attributes.min "0", Html.Attributes.max "10", onRange Special ] [],
+              input [ class "invisible", type' "range" ] []
+            ],
+            div [ class "labels" ] [
+              label [ for "lower" ] [ text (toString model.lower), text " lowercase letters." ],
+              label [ for "upper" ] [ text (toString model.upper), text " uppercase letters." ],
+              label [ for "digits" ] [ text (toString model.digits), text " digits." ],
+              label [ for "special" ] [ text (toString model.special), text " special characters." ],
+              label [ for "password" ] [ text (toString (String.length model.password)), text " total." ]
             ]
-        , div []
-            [ input [ type' "range", value (toString model.upper), Html.Attributes.min "0", Html.Attributes.max "20", onRange Upper ] []
-            , label [] [ text (toString model.upper), text " uppercase letters." ]
-            ]
-        , div []
-            [ input [ type' "range", value (toString model.digits), Html.Attributes.min "0", Html.Attributes.max "20", onRange Digits ] []
-            , label [] [ text (toString model.digits), text " digits." ]
-            ]
-        , div []
-            [ input [ type' "range", value (toString model.special), Html.Attributes.min "0", Html.Attributes.max "10", onRange Special ] []
-            , label [] [ text (toString model.special), text " special characters." ]
-            ]
-        , div []
-            [ input [ id "password", onClick SelectPassword, type' "text", readonly True, placeholder "Password", value model.password ] []
-            , label [] [ text (toString (String.length model.password)) ]
-            ]
-        , button [ onClick Generate ] [ text "Generate" ]
+          ],
+          div [ class "password-container" ] [
+             input [ id "password", onClick SelectPassword, type' "text", readonly True, placeholder "Password", value model.password ] [],
+             button [ class "generate-button", onClick Generate ] [ img [ src "loop.svg" ] [] ]
+          ]
         ]

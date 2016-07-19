@@ -1,9 +1,66 @@
 <html>
 <head>
+  <meta charset="utf-8" />
   <style>
     body {
-      width: 500px;
-      height: 300px;
+      font-family: Arial;
+      width: 350px;
+      height: 260px;
+      background: #F7F5F5;
+      padding: 5px 15px;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .invisible {
+      visibility: hidden;
+    }
+
+    .control-container {
+      display: flex;
+    }
+
+    .labels, .controls {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 125px;
+    }
+
+    .password-container {
+      margin-top: 25px;
+    }
+
+    #password {
+      height: 32px;
+      width: calc(100% - 35px);
+      vertical-align: top;
+      border: 1px solid #999;
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+      padding: 0 5px;
+    }
+
+    .generate-button {
+      height: 32px;
+      width: 35px;
+      padding: 0;
+      text-align: center;
+      border-radius: 0;
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      border: 1px solid #999;
+      border-left: 0;
+    }
+    .generate-button img {
+      height: 20px;
+      width: 20px;
     }
   </style>
 </head>
