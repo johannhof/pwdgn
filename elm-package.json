@@ -4,8 +4,9 @@
     "repository": "https://github.com/johannhof/pwdgn.git",
     "license": "MIT",
     "source-directories": [
-        "."
+        "./src/"
     ],
+    "native-modules": true,
     "exposed-modules": [],
     "dependencies": {
         "elm-lang/core": "4.0.1 <= v < 5.0.0",

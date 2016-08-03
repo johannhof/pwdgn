@@ -13,10 +13,17 @@
     }
   },
 
+  "icons": {
+      "48": "icon.png"
+  },
+
   "browser_action": {
     "browser_style": true,
     "default_title": "Generate Password",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icon.png"
+    }
   }
 
 }

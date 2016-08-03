@@ -6,19 +6,26 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, on)
 import Html.Events.Extra
 import Random
-import Random.Char
+import Char
 import Random.Array
 import String
 import Array exposing (Array)
 import Json.Decode as Json
+import List exposing (map)
 
 main =
     Html.program
         { init = init, view = view, update = update, subscriptions = subscriptions }
 
 port focus : String -> Cmd msg
+port cryptoRandom : (Int, Int, Int, Int) -> Cmd msg
+
+getRandomValues: Model -> Cmd msg
+getRandomValues model =  cryptoRandom (model.lower, model.upper, model.digits, model.special)
 
 -- MODEL
+
+type alias RandomList = (List Float, List Float, List Float, List Float)
 
 type alias Model =
     { password : String
@@ -32,8 +39,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     let model = { password = "", lower = 7, upper = 7, digits = 5, special = 2 } in
-    ( model, randomPassword model.lower model.upper model.digits model.special )
-
+    model ! [ getRandomValues model ]
 
 -- UPDATE
 
@@ -45,37 +51,40 @@ type Msg
     | Upper Int
     | Digits Int
     | Special Int
+    | RandomValues RandomList
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let password model = randomPassword model.lower model.upper model.digits model.special in
     case msg of
         Lower lower ->
             if lower == model.lower then model ! []
             else
                 let model = { model | lower = lower } in
-                model ! [ password model ]
+                model ! [ getRandomValues model ]
 
         Upper upper ->
             if upper == model.upper then model ! []
             else
                 let model = { model | upper = upper } in
-                model ! [ password model ]
+                model ! [ getRandomValues model ]
 
         Digits digits ->
             if digits == model.digits then model ! []
             else
                 let model = { model | digits = digits } in
-                model ! [ password model ]
+                model ! [ getRandomValues model ]
 
         Special special ->
             if special == model.special then model ! []
             else
                 let model = { model | special = special } in
-                model ! [ password model ]
+                model ! [ getRandomValues model ]
 
         Generate ->
-            model ! [ password model ]
+            model ! [ getRandomValues model ]
+
+        RandomValues list ->
+            model ! [ randomPassword list ]
 
         SelectPassword ->
             model ! [ focus ("#password") ]
@@ -84,43 +93,36 @@ update msg model =
             { model | password = pass } ! []
 
 
-upperCaseLetter : Int -> Random.Generator (Array Char)
-upperCaseLetter n =
-    Random.Array.array n (Random.Char.char 65 90)
+lowerCaseLetter : Float -> Char
+lowerCaseLetter n = Char.fromCode (round (n * 25 + 97))
 
+upperCaseLetter : Float -> Char
+upperCaseLetter n = Char.fromCode (round (n * 25 + 65))
 
-lowerCaseLetter : Int -> Random.Generator (Array Char)
-lowerCaseLetter n =
-    Random.Array.array n (Random.Char.char 97 122)
+digit : Float -> Char
+digit n = Char.fromCode (round (n * 9 + 48))
 
+specialCharacter : Float -> Char
+specialCharacter n = Char.fromCode (round (n * 13 + 33))
 
-digit : Int -> Random.Generator (Array Char)
-digit n =
-    Random.Array.array n (Random.Char.char 48 57)
-
-
-specialCharacter : Int -> Random.Generator (Array Char)
-specialCharacter n =
-    Random.Array.array n (Random.Char.char 33 46)
-
-
-randomPassword : Int -> Int -> Int -> Int -> Cmd Msg
-randomPassword lower upper digits special =
-    let
-        array = Random.map4 (\a b c d -> Array.append a (Array.append b (Array.append c d))) (lowerCaseLetter lower) (upperCaseLetter upper) (digit digits) (specialCharacter special)
-        shuffled = array `Random.andThen` Random.Array.shuffle
-    in
-        Random.generate (Array.toList >> List.map String.fromChar >> String.join "" >> NewPassword) shuffled
-
-
+randomPassword : RandomList -> Cmd Msg
+randomPassword list =
+  let (lower, upper, digits, special) = list
+      chars = (map lowerCaseLetter lower) ++
+              (map upperCaseLetter upper) ++
+              (map digit digits) ++
+              (map specialCharacter special)
+      shuffled = Random.Array.shuffle (Array.fromList chars)
+  in
+  Random.generate (Array.toList >> List.map String.fromChar >> String.join "" >> NewPassword) shuffled
 
 -- SUBSCRIPTIONS
 
+port randomValues : (RandomList -> msg) -> Sub msg
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
-
+    randomValues RandomValues
 
 onRange : (Int -> msg) -> Attribute msg
 onRange message =

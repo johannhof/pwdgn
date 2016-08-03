@@ -7,6 +7,7 @@ build: clean
 	cp src/fullscreen.js build
 	cp src/popup.html build
 	cp src/loop.svg build
+	cp src/icon.png build
 	elm make src/Main.elm --output build/popup.js
 
 release: firefox chrome
