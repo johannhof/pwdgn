@@ -81,7 +81,7 @@ update msg model =
                 model ! [ getRandomValues model ]
 
         Generate ->
-            model ! [ getRandomValues model ]
+            model ! [ getRandomValues model, focus ("#password") ]
 
         RandomValues list ->
             model ! [ randomPassword list ]
