@@ -9,6 +9,14 @@ app.ports.focus.subscribe(function(selector) {
     }, 50);
 });
 
+document.body.addEventListener("click", function(ev) {
+  let node = ev.target;
+  if (node.id === "password") {
+    node.setSelectionRange(0, node.value.length);
+    document.execCommand("copy");
+  }
+});
+
 function generateRandom(list) {
   let lower = new Uint16Array(list[0]);
   window.crypto.getRandomValues(lower);
