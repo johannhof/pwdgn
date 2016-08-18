@@ -19,6 +19,7 @@ main =
 
 port focus : String -> Cmd msg
 port cryptoRandom : (Int, Int, Int, Int) -> Cmd msg
+port passwordStrength : String -> Cmd msg
 
 getRandomValues: Model -> Cmd msg
 getRandomValues model =  cryptoRandom (model.lower, model.upper, model.digits, model.special)
@@ -33,12 +34,13 @@ type alias Model =
     , upper : Int
     , digits : Int
     , special : Int
+    , strength : Int
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    let model = { password = "", lower = 7, upper = 7, digits = 5, special = 2 } in
+    let model = { password = "", strength = 0, lower = 7, upper = 7, digits = 5, special = 2 } in
     model ! [ getRandomValues model ]
 
 -- UPDATE
@@ -52,6 +54,7 @@ type Msg
     | Digits Int
     | Special Int
     | RandomValues RandomList
+    | PasswordStrength Int
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -81,16 +84,19 @@ update msg model =
                 model ! [ getRandomValues model ]
 
         Generate ->
-            model ! [ getRandomValues model, focus ("#password") ]
+            model ! [ getRandomValues model, focus "#password" ]
 
         RandomValues list ->
             model ! [ randomPassword list ]
 
         SelectPassword ->
-            model ! [ focus ("#password") ]
+            model ! [ focus "#password" ]
 
         NewPassword pass ->
-            { model | password = pass } ! []
+            { model | password = pass } ! [ passwordStrength pass ]
+
+        PasswordStrength strength ->
+            { model | strength = strength } ! []
 
 
 lowerCaseLetter : Float -> Char
@@ -119,10 +125,14 @@ randomPassword list =
 -- SUBSCRIPTIONS
 
 port randomValues : (RandomList -> msg) -> Sub msg
+port strength : (Int -> msg) -> Sub msg
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    randomValues RandomValues
+  Sub.batch [
+    randomValues RandomValues,
+    strength PasswordStrength
+  ]
 
 onRange : (Int -> msg) -> Attribute msg
 onRange message =
@@ -147,7 +157,8 @@ view model =
               label [ for "upper" ] [ text (toString model.upper), text " uppercase letters." ],
               label [ for "digits" ] [ text (toString model.digits), text " digits." ],
               label [ for "special" ] [ text (toString model.special), text " special characters." ],
-              label [ for "password" ] [ text (toString (String.length model.password)), text " total." ]
+              label [ for "password" ] [ text (toString (String.length model.password)), text " total." ],
+              label [ ] [ text (toString model.strength) ]
             ]
           ],
           div [ class "password-container" ] [

@@ -9,6 +9,11 @@ app.ports.focus.subscribe(function(selector) {
     }, 50);
 });
 
+app.ports.passwordStrength.subscribe(function(pass) {
+  let result = zxcvbn(pass);
+  app.ports.strength.send(result.score);
+});
+
 document.body.addEventListener("click", function(ev) {
   let node = ev.target;
   if (node.id === "password") {

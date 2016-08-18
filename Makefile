@@ -5,6 +5,7 @@ build: clean
 	mkdir -p build
 	cp src/manifest.json build
 	cp src/fullscreen.js build
+	cp src/zxcvbn.js build
 	cp src/popup.html build
 	cp src/loop.svg build
 	cp src/icon.png build
