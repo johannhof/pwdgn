@@ -22,28 +22,20 @@ document.body.addEventListener("click", function(ev) {
   }
 });
 
-function generateRandom(list) {
-  let lower = new Uint16Array(list[0]);
-  window.crypto.getRandomValues(lower);
+let subZero = (n) => n / 65536;
 
-  let upper = new Uint16Array(list[1]);
-  window.crypto.getRandomValues(upper);
-
-  let digits = new Uint16Array(list[2]);
-  window.crypto.getRandomValues(digits);
-
-  let special = new Uint16Array(list[3]);
-  window.crypto.getRandomValues(special);
+function generateRandom([lower, upper, digits, special]) {
+  let random = new Uint16Array(lower + upper + digits + special);
+  window.crypto.getRandomValues(random);
+  random = Array.from(random).map(subZero);
 
   app.ports.randomValues.send([
-    Array.from(lower).map(subZero),
-    Array.from(upper).map(subZero),
-    Array.from(digits).map(subZero),
-    Array.from(special).map(subZero)
+    random.splice(0, lower),
+    random.splice(0, upper),
+    random.splice(0, digits),
+    random.splice(0, special)
   ]);
 }
-
-let subZero = (n) => n / 65536;
 
 app.ports.cryptoRandom.subscribe(function(list) {
   generateRandom(list);
@@ -51,7 +43,7 @@ app.ports.cryptoRandom.subscribe(function(list) {
 
 // FIXME BIG AND UGLY HACK
 // for some reason subscriptions can not trigger when init is run,
-// this makes a pasword appear on starting up
+// this makes a password appear on starting up
 setTimeout(function(){
   generateRandom([7,7,5,2]);
 }, 10)
