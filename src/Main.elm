@@ -41,7 +41,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     let model = { password = "", strength = 0, lower = 7, upper = 7, digits = 5, special = 2 } in
-    model ! [ getRandomValues model ]
+    model ! []
 
 -- UPDATE
 
@@ -55,6 +55,7 @@ type Msg
     | Special Int
     | RandomValues RandomList
     | PasswordStrength Int
+    | Parameters (Int, Int, Int, Int)
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -82,6 +83,14 @@ update msg model =
             else
                 let model = { model | special = special } in
                 model ! [ getRandomValues model ]
+
+        Parameters (lower, upper, digits, special) ->
+          let model = { model |
+              upper = upper,
+              lower = lower,
+              digits = digits,
+              special = special } in
+          model ! [ getRandomValues model ]
 
         Generate ->
             model ! [ getRandomValues model, focus "#password" ]
@@ -124,6 +133,7 @@ randomPassword list =
 
 -- SUBSCRIPTIONS
 
+port parameters : ((Int, Int, Int, Int) -> msg) -> Sub msg
 port randomValues : (RandomList -> msg) -> Sub msg
 port strength : (Int -> msg) -> Sub msg
 
@@ -131,7 +141,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch [
     randomValues RandomValues,
-    strength PasswordStrength
+    strength PasswordStrength,
+    parameters Parameters
   ]
 
 onRange : (Int -> msg) -> Attribute msg

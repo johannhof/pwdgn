@@ -17,6 +17,10 @@
       "48": "icon.png"
   },
 
+  "permissions": [
+    "storage"
+  ],
+
   "browser_action": {
     "browser_style": true,
     "default_title": "Generate Password",

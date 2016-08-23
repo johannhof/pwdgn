@@ -37,13 +37,16 @@ function generateRandom([lower, upper, digits, special]) {
   ]);
 }
 
-app.ports.cryptoRandom.subscribe(function(list) {
-  generateRandom(list);
+app.ports.cryptoRandom.subscribe(function(parameters) {
+  chrome.storage.local.set({parameters});
+  generateRandom(parameters);
 });
 
-// FIXME BIG AND UGLY HACK
-// for some reason subscriptions can not trigger when init is run,
-// this makes a password appear on starting up
+// initialize things
 setTimeout(function(){
-  generateRandom([7,7,5,2]);
-}, 10)
+  chrome.storage.local.get("parameters", function(data){
+    let parameters = data.parameters ||  [7,7,5,2];
+    app.ports.parameters.send(parameters);
+    generateRandom(parameters);
+  });
+}, 10);
